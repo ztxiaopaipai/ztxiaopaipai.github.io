@@ -1,2 +1,123 @@
-# ztxiaopaipai.github.io
-this is a  disorganizes warehouse
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>炫酷留言板</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{
+      --accent:#00f0ff;
+      --accent2:#ff00f0;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",Arial,Helvetica,sans-serif}
+    body{
+      min-height:100vh;
+      background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+      background-size:400% 400%;
+      animation:bgMove 8s ease infinite;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      overflow:hidden;
+    }
+    @keyframes bgMove{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+    .card{
+      width:90%;max-width:520px;
+      padding:40px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      backdrop-filter:blur(12px);
+      box-shadow:0 0 20px rgba(0,240,255,.15),0 0 40px rgba(255,0,240,.15);
+      transition:transform .3s;
+    }
+    .card:hover{transform:translateY(-4px)}
+    h1,h2{margin-bottom:20px;text-align:center;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    input,textarea{
+      width:100%;padding:12px;margin:8px 0;
+      background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);
+      border-radius:8px;color:#fff;font-size:16px;
+      transition:box-shadow .3s;
+    }
+    input:focus,textarea:focus{
+      outline:none;
+      box-shadow:0 0 0 2px var(--accent),0 0 10px var(--accent);
+    }
+    button{
+      width:100%;padding:12px;margin-top:12px;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      border:none;border-radius:8px;color:#000;font-weight:bold;font-size:16px;
+      cursor:pointer;position:relative;overflow:hidden;
+      transition:all .3s;
+    }
+    button:hover{filter:brightness(1.2);transform:scale(1.03)}
+    button:active{transform:scale(.97)}
+    ul{list-style:none;margin-top:20px;max-height:300px;overflow-y:auto}
+    li{
+      margin-bottom:10px;padding:10px 14px;
+      background:rgba(255,255,255,.06);
+      border-left:3px solid var(--accent);
+      border-radius:6px;
+      animation:fadeIn .5s;
+    }
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+
+<!-- 问候 -->
+<div id="greetBox" class="card">
+  <h1>欢迎来到 ztxiaopaipai 的炫酷空间 🚀</h1>
+  <p style="text-align:center;margin-bottom:24px">点下方按钮开始留言</p>
+  <button onclick="showGuestbook()">确定</button>
+</div>
+
+<!-- 留言板 -->
+<div id="guestbook" class="card hidden">
+  <h2>留言板 💬</h2>
+  <form id="msgForm">
+    <input id="nickname" placeholder="昵称" required>
+    <textarea id="message" placeholder="说点什么…" required></textarea>
+    <button>发送</button>
+  </form>
+  <ul id="msgList"></ul>
+</div>
+
+<script>
+function showGuestbook(){
+  document.getElementById('greetBox').classList.add('hidden');
+  document.getElementById('guestbook').classList.remove('hidden');
+  loadMessages();
+}
+
+function loadMessages(){
+  const USER='ztxiaopaipai',REPO='ztxiaopaipai.github.io';
+  fetch(`https://api.github.com/repos/${USER}/${REPO}/issues?labels=guestbook`)
+    .then(r=>r.json())
+    .then(issues=>{
+      const list=document.getElementById('msgList');
+      list.innerHTML='';
+      issues.forEach(issue=>{
+        const li=document.createElement('li');
+        li.innerHTML=`<strong>${issue.title}</strong>：${issue.body}`;
+        list.appendChild(li);
+      });
+    });
+}
+
+document.getElementById('msgForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const title=document.getElementById('nickname').value;
+  const body=document.getElementById('message').value;
+  const url=`https://github.com/ztxiaopaipai/ztxiaopaipai.github.io/issues/new?labels=guestbook&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+  window.open(url,'_blank');
+});
+</script>
+</body>
+</html>
